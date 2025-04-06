@@ -4,6 +4,7 @@ we use the `prettytable` package  to create clean and readable ASCII tables in t
 """
  
 from prettytable import PrettyTable
+import sys
 
 
 def file_reader(file):
@@ -17,7 +18,7 @@ def file_reader(file):
         if line[0] == ".":  # skip comment line
             continue
         # split to label, instruction, data && store in 2d array
-        col = [line[0:10].strip(), line[12:20].strip(), line[22:39].strip()]
+        col = [line[0:9].strip(), line[11:19].strip(), line[21:38].strip()]
         data_file.append(col)
 
     input_file.close()
