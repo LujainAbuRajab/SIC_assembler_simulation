@@ -9,7 +9,7 @@ import sys
 
 def file_reader(file):
     """ read SIC program file.
-    :return: 2D array in form of -> [label, instruction, operand]
+    :return: 2D array in form of -> [label, instruction, operand]  
     """
 
     input_file = open(file,"rt") #read text mood
@@ -36,14 +36,14 @@ def optab_reader():
     input_file.close()
     return op_tabel
 
-def locctr(data, optab):
+def locctr(data, optab, intermediate_file):
     """" pass1 assembler write in intermediate file as location,label,inst or directive ,operand.
     :parameter -> data : sic program that store in 2D array
     :parameter -> optab: opcode table in dictionary
     :return: Symbol table as dictionary
     """
 
-    out = open("intermediate.mdt", "w")
+    out = open(intermediate_file, "w")
     symtab = {}
     directives = ["START", "END", "BYTE", "WORD", "RESB", "RESW"]
 
@@ -111,27 +111,36 @@ def locctr(data, optab):
 
         return symtab
     
+
 if __name__ == '__main__':
-    data = file_reader("SIC_file_ex1.txt")
-    symbol = open("symbol.txt", "w")
+    # Make sure user gives exactly 2 command-line arguments
+    if len(sys.argv) != 3:
+        print("Usage: python pass1.py <source_file.asm> <intermediate_file.mdt>")
+        sys.exit(1)
+
+    # Read arguments from the command line
+    source_file = sys.argv[1]
+    intermediate_file = sys.argv[2]
+
+    # Read SIC source file and opcode table
+    data = file_reader(source_file)
     optab = optab_reader()
-    table_list = []
-    symtab = locctr(data, optab)
-    if symtab == 0:  # check errors
-        pass
-    else:
-        for i in range(len(symtab)):
-            col = [list(symtab.items())[i][0], list(symtab.items())[i][1]]
-            table_list.append(col)
 
+    # Create symbol table via Pass 1
+    symtab = locctr(data, optab, intermediate_file)
 
-        table = PrettyTable(['Symbol', 'Address'])  # using prettyTable library to arrange symbol table.
-        for rec in table_list:
-            table.add_row(rec)
-            blanks = 11 - len(rec[0])
-            symbol.write(rec[0] + " " * blanks + rec[1] + '\n')
+    # Error check
+    if symtab == 0:
+        sys.exit(1)
 
-        print("\n SYMBOL TABLE  :\n")
-        print(table)
+    # Write and display symbol table
+    with open("symbol.txt", "w") as symbol_file:
+        table = PrettyTable(['Symbol', 'Address'])
 
-        symbol.close()
+        for symbol, addr in symtab.items():
+            table.add_row([symbol, addr])
+            blanks = 11 - len(symbol)
+            symbol_file.write(symbol + " " * blanks + addr + '\n')
+
+    print("\nSYMBOL TABLE:\n")
+    print(table)
