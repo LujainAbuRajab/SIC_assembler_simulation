@@ -2,6 +2,7 @@
 ''' processing: Inst -> generate its object code.
               Dir  -> handling 
               START, END  -> header and end records.'''
+# for running the file: python pass2.py intermediate.mdt object.obj 
 
 from prettytable import PrettyTable
 import sys 

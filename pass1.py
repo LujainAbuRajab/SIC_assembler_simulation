@@ -2,6 +2,7 @@
 Pass 1: Processes the source code, builds a symbol table, and generates an intermediate file.
 we use the `prettytable` package  to create clean and readable ASCII tables in the terminal.
 """
+#for runnung the file: python pass1.py SIC_file_ex1.txt intermediate.mdt
  
 from prettytable import PrettyTable
 import sys
