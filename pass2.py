@@ -6,7 +6,6 @@
 from prettytable import PrettyTable
 import sys 
 
-
 def file_reading(file):
     """read intermediate  file.
     :file: file that contain intermediate
@@ -70,7 +69,7 @@ def text_record(list, out, add):
 
 
 
-def pass_2(intermediate, obtab, symtab):
+def pass_2(intermediate, obtab, symtab, listing_name, object_name):
     """write in the listing file
         :intermediate: array [location ,label ,instruction and operand] from intermediate file.
         :obtab: dictionary for inst. and there obcode.
@@ -82,8 +81,8 @@ def pass_2(intermediate, obtab, symtab):
     object_code = ''
 
     # open files(listing + symbol)
-    list = open("listing.lst", "w")
-    object1 = open("object.obj", "w")
+    list = open(listing_name, "w")
+    object1 = open(object_name, "w")
     directives = ["START", "END", "BYTE", "WORD", "RESB", "RESW"]
     length = hex(int(int(intermediate[len(intermediate) - 1][0], 16) - int(intermediate[0][3], 16)))[2:]
     
@@ -112,7 +111,7 @@ def pass_2(intermediate, obtab, symtab):
                 object1.write("E^" + symtab[item[3]] + '\n')
                 object_code = ""
                 write_file(item, list, object_code)
-                return error_array
+                break
             
             elif item[2] == 'RSUB':
                 object_code = obtab[item[2]] + "0000"
@@ -174,20 +173,24 @@ def pass_2(intermediate, obtab, symtab):
             write_file(item, list, object_code)
             if object_code != '':
                 text_array.append(object_code)
+    list.close()
+    object1.close()
+    return error_array
+
+    
 
 if __name__ == '__main__':
-    intermediate = file_reading("intermediate.mdt")
+    if len(sys.argv) != 3:
+        print("Usage: python pass2.py <intermediate_file.mdt> <object_file.obj>")
+        sys.exit(1)
+
+    intermediate_filename = sys.argv[1]
+    object_filename = sys.argv[2]
+    listing_filename = "listing.lst"
+
+    intermediate = file_reading(intermediate_filename)
     optable = tab_read('inst_set.txt')
     symtable = tab_read('symbol.txt')
-    error_list = pass_2(intermediate, optable, symtable)
+    error_list = pass_2(intermediate, optable, symtable, listing_filename, object_filename)
 
-    if error_list:  # check if sic program contain errors or not.
-        print("ERROR LIST")
-        for i in error_list:
-            print("\033[1;31m" + i)  # print error in red color
-
-    elif error_list==0:
-        pass
-    else:
-        print("\033[1;32m no error")  # print no error in green color
     
